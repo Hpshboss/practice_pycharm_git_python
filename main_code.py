@@ -1,18 +1,27 @@
 import cv2
 import numpy as np
 
+cap = cv2.VideoCapture(1)
 
-img = cv2.imread("bookpage.jpg")
-retval, threshold = cv2.threshold(img, 12, 255, cv2.THRESH_BINARY)
-grayscaled = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-retval2, threshold2 = cv2.threshold(grayscaled, 12, 255, cv2.THRESH_BINARY)
-gaus = cv2.adaptiveThreshold(grayscaled, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 155, 1)
+while True:
+    _, frame = cap.read()
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-cv2.imshow("original", img)
-cv2.imshow("threshold", threshold)
-cv2.imshow("rthreshold2", threshold2)
-cv2.imshow("gaus", gaus)
-cv2.waitKey(0)
+    # hsv hue sat value
+    lower_red = np.array([100, 100, 0])
+    upper_red = np.array([255, 255, 255])
+
+    mask = cv2.inRange(hsv, lower_red, upper_red)
+    res = cv2.bitwise_and(frame, frame, mask=mask)
+
+    cv2.imshow("frame", frame)
+    cv2.imshow("mask", mask)
+    cv2.imshow("res", res)
+
+    k = cv2.waitKey(5) & 0xFF
+    if k == 27:
+        break
+
 cv2.destroyAllWindows()
-
+cap.release()
 
