@@ -1,25 +1,19 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture(1)
+img_bgr = cv2.imread("opencv-template-matching-python-tutorial.jpg")
+img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
 
-while True:
-    _, frame = cap.read()
+template = cv2.imread("opencv-template-for-matching.jpg", 0)
+w, h = template.shape[::-1]
 
-    laplacian = cv2.Laplacian(frame, cv2.CV_64F)
-    sobelx = cv2.Sobel(frame, cv2.CV_64F, 1, 0, ksize=5)
-    sobely = cv2.Sobel(frame, cv2.CV_64F, 0, 1, ksize=5)
-    edges = cv2.Canny(frame, 100, 100)
+res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+threshold = 0.75
+loc = np.where(res >= threshold)
 
-    cv2.imshow("original", frame)
-    cv2.imshow("laplacian", laplacian)
-    cv2.imshow("sobelx", sobelx)
-    cv2.imshow("sobely", sobely)
-    cv2.imshow("edges", edges)
+for pt in zip(*loc[::-1]):
+    cv2.rectangle(img_bgr, pt, (pt[0]+w, pt[1]+h), (0, 255, 255), 2)
 
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
-        break
-
+cv2.imshow("detected", img_bgr)
+cv2.waitKey(0)
 cv2.destroyAllWindows()
-cap.release()
